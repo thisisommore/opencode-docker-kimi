@@ -20,11 +20,12 @@ RUN mkdir -p -m 0755 /etc/apt/keyrings \
 
 # Update dependencies and assemble the complete Toolbelt + Network Suite + Core Runtimes
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # --- Forge Version Control Tooling ---
+    git \
+    gh \
     # --- System Core & Build Tools ---
     build-essential \
     make \
-    git \
-    gh \
     ripgrep \
     fd-find \
     jq \
@@ -44,45 +45,49 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nmap \
     && rm -rf /var/lib/apt/lists/*
 
-# Install GitLab CLI (glab) natively via official binary stream installer
-RUN curl -s https://raw.githubusercontent.com/profclems/glab/trunk/scripts/quick_install.sh | bash
+# Install official GitLab CLI (glab) from the modern gitlab-org repository archive
+RUN curl -fsSL "https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_linux_amd64.tar.gz" \
+    | tar -xzC /usr/local/bin bin/glab --strip-components=1
 
 # Map canonical binary alias targets (Fixes Ubuntu's naming quirk for fd-find)
 RUN ln -s /usr/bin/fdfind /usr/local/bin/fd
 
-# Install the OpenCode binary natively via the official stream pipe
-RUN curl -fsSL https://opencode.ai/install | bash
-
 # Enforce secure unprivileged runtime boundaries (UID 1001) for low-permission host servers
 RUN useradd -m -u 1001 -s /bin/bash developer && \
-    mkdir -p /workspace /home/developer/.local/share/opencode && \
+    mkdir -p /workspace /home/developer/.local/share/opencode /home/developer/.local/bin && \
     chown -R developer:developer /workspace /home/developer
 
 # Configure user context parameters
 WORKDIR /workspace
 USER developer
 
-# Set up explicit environment anchors for user-space package manager installations
+# Set up global environment paths for all ecosystem tooling runtimes
 ENV NVM_DIR=/home/developer/.nvm
 ENV CARGO_HOME=/home/developer/.cargo
 ENV BUN_INSTALL=/home/developer/.local/share/bun
-ENV PATH="${CARGO_HOME}/bin:${BUN_INSTALL}/bin:${PATH}"
+ENV PATH="/home/developer/.local/bin:/home/developer/.opencode/bin:${CARGO_HOME}/bin:${BUN_INSTALL}/bin:${PATH}"
 
-# 1. Install Node.js via NVM + Global pnpm (All inside user space)
+# Install the OpenCode binary cleanly within the developer's execution context
+RUN curl -fsSL https://opencode.ai/install | bash
+
+# Install Node.js via NVM + Global pnpm, then symlink them to break subshell path dependency issues
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash \
     && . "$NVM_DIR/nvm.sh" \
     && nvm install --lts \
     && nvm use --lts \
     && nvm alias default 'lts/*' \
-    && npm install -g pnpm
+    && npm install -g pnpm \
+    && ln -s "$(which node)" /home/developer/.local/bin/node \
+    && ln -s "$(which npm)" /home/developer/.local/bin/npm \
+    && ln -s "$(which pnpm)" /home/developer/.local/bin/pnpm
 
-# 2. Install Rust Toolchain via rustup
+# Install Rust Toolchain via rustup
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 
-# 3. Install Bun Runtime
+# Install Bun Runtime
 RUN curl -fsSL https://bun.sh/install | bash
 
-# Inject the environment controller script
+# Inject the fixed environment controller entrypoint script
 COPY --chown=developer:developer entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
