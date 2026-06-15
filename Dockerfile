@@ -90,7 +90,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Expose standard headless routing network definitions
 EXPOSE 4096
 
-mkdir -p /home/developer/Documents/git
+RUN mkdir -p /home/developer/Documents/git
 WORKDIR /home/developer/Documents/git
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
