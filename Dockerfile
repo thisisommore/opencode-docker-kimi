@@ -31,6 +31,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dnsutils \
     net-tools \
     nmap \
+    # --- Archiving & Compression Tools ---
+    tar \
+    gzip \
+    bzip2 \
+    zip \
+    unzip \
+    xz-utils \
+    zstd \
+    # --- Binary Inspection Tooling ---
+    file \
+    xxd \
+    binutils \
     && rm -rf /var/lib/apt/lists/*
 
 # Map canonical binary alias targets (Fixes Ubuntu's naming quirk for fd-find)
