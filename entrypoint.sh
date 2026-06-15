@@ -25,22 +25,45 @@ mkdir -p "$HOME/.local/share/opencode"
 printf '%s' "$OPENCODE_AUTH_B64" | base64 -d > "$HOME/.local/share/opencode/auth.json"
 chmod 600 "$HOME/.local/share/opencode/auth.json"
 
+# --- Git Configuration Setup ---
+if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+    echo "[INFO] Configuring global Git commit author identity..."
+    git config --global user.name "$GIT_USER_NAME"
+    git config --global user.email "$GIT_USER_EMAIL"
+else
+    echo "[WARNING] GIT_USER_NAME or GIT_USER_EMAIL is unset. Git commits may complain about identity." >&2
+fi
+
+# --- Runtime SSH Infrastructure Setup ---
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+# Generate Ed25519 key pair only if it doesn't exist (Idempotent for volume restarts)
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+    echo "[INFO] No existing deployment key detected. Provisioning fresh Ed25519 pair..."
+    ssh-keygen -t ed25519 -C "${GIT_USER_EMAIL:-opencode-agent}" -N "" -f "$HOME/.ssh/id_ed25519"
+fi
+
+# Initialize runtime container SSH agent background process
+echo "[INFO] Spawning background SSH agent..."
+eval "$(ssh-agent -s)"
+
+# Register key with the running agent boundary
+ssh-add "$HOME/.ssh/id_ed25519"
+
+# Print public signature block so it can be registered at the forge layer easily
+echo "======================================================================="
+echo "[ACTION REQUIRED] Copy this public signature to your GitHub/GitLab keys:"
+cat "$HOME/.ssh/id_ed25519.pub"
+echo "======================================================================="
+
 # --- Safe Language Runtime Initialization Diagnostics ---
-# Wrapped to prevent set -e from aborting startup if an individual tool isn't in focus
-go version >/dev/null 2>&1 && echo "[INFO] Go runtime version: $(go version)" || echo "[WARN] Go runtime not explicitly tracked in environment"
-python3 --version >/dev/null 2>&1 && echo "[INFO] Python runtime version: $(python3 --version)" || echo "[WARN] Python runtime not explicitly tracked in environment"
+go version >/dev/null 2>&1 && echo "[INFO] Go runtime version: $(go version)" || echo "[WARN] Go runtime not explicitly tracked"
+python3 --version >/dev/null 2>&1 && echo "[INFO] Python runtime version: $(python3 --version)" || echo "[WARN] Python runtime not explicitly tracked"
 
 if command -v node >/dev/null 2>&1; then
     echo "[INFO] Persistent Node runtime initialized: $(node -v)"
     echo "[INFO] Persistent pnpm runtime version: $(pnpm -v)"
-fi
-
-if command -v rustc >/dev/null 2>&1; then
-    echo "[INFO] Rust toolchain initialized: $(rustc --version)"
-fi
-
-if command -v bun >/dev/null 2>&1; then
-    echo "[INFO] Bun engine initialized: $(bun -v)"
 fi
 
 # Hand over process control to the headless OpenCode server engine
