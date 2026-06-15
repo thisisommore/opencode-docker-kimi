@@ -7,8 +7,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update dependencies and assemble the complete Toolbelt + Network Suite + Core Runtimes
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # --- System Core & Fetch Utilities ---
+    sudo \
     curl \
     wget \
+    tree \
     ca-certificates \
     git \
     openssh-client \
@@ -48,8 +50,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Map canonical binary alias targets (Fixes Ubuntu's naming quirk for fd-find)
 RUN ln -s /usr/bin/fdfind /usr/local/bin/fd
 
-# Enforce secure unprivileged runtime boundaries (UID 1001) for low-permission host servers
+# Enforce secure unprivileged runtime boundaries (UID 1001) with passwordless sudo rights
 RUN useradd -m -u 1001 -s /bin/bash developer && \
+    echo "developer ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
     mkdir -p /workspace /home/developer/.local/share/opencode /home/developer/.local/bin && \
     chown -R developer:developer /workspace /home/developer
 
