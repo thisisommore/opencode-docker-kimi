@@ -19,37 +19,29 @@ if [ -z "$OPENCODE_AUTH_B64" ]; then
     exit 1
 fi
 
-# Securely decode runtime configuration payload into the user's home directory
+# Securely decode runtime configuration payload using printf to avoid trailing newlines
 echo "[INFO] Extracting session profiles from OPENCODE_AUTH_B64..."
 mkdir -p "$HOME/.local/share/opencode"
-echo "$OPENCODE_AUTH_B64" | base64 -d > "$HOME/.local/share/opencode/auth.json"
+printf '%s' "$OPENCODE_AUTH_B64" | base64 -d > "$HOME/.local/share/opencode/auth.json"
 chmod 600 "$HOME/.local/share/opencode/auth.json"
 
-# --- Dynamic Language Runtime Initializations ---
+# --- Safe Language Runtime Initialization Diagnostics ---
+# Wrapped to prevent set -e from aborting startup if an individual tool isn't in focus
+go version >/dev/null 2>&1 && echo "[INFO] Go runtime version: $(go version)" || echo "[WARN] Go runtime not explicitly tracked in environment"
+python3 --version >/dev/null 2>&1 && echo "[INFO] Python runtime version: $(python3 --version)" || echo "[WARN] Python runtime not explicitly tracked in environment"
 
-# 1. Initialize NVM (Brings Node, npm, and pnpm into PATH)
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-    . "$NVM_DIR/nvm.sh"
-    echo "[INFO] NVM runtime initialized: $(node -v) / pnpm $(pnpm -v)"
+if command -v node >/dev/null 2>&1; then
+    echo "[INFO] Persistent Node runtime initialized: $(node -v)"
+    echo "[INFO] Persistent pnpm runtime version: $(pnpm -v)"
 fi
 
-# 2. Initialize Rust/Cargo Environment
-if [ -s "$HOME/.cargo/env" ]; then
-    . "$HOME/.cargo/env"
-    echo "[INFO] Rust runtime initialized: $(rustc --version)"
+if command -v rustc >/dev/null 2>&1; then
+    echo "[INFO] Rust toolchain initialized: $(rustc --version)"
 fi
 
-# 3. Initialize Bun Environment
-export BUN_INSTALL="$HOME/.local/share/bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
 if command -v bun >/dev/null 2>&1; then
-    echo "[INFO] Bun runtime initialized: $(bun -v)"
+    echo "[INFO] Bun engine initialized: $(bun -v)"
 fi
-
-# Verify system-wide runtimes
-echo "[INFO] Go runtime version: $(go version)"
-echo "[INFO] Python runtime version: $(python3 --version)"
 
 # Hand over process control to the headless OpenCode server engine
 echo "[INFO] Exposing OpenCode routing gateway on 0.0.0.0:4096..."
