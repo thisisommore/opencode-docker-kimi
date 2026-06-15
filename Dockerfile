@@ -91,5 +91,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 4096
 
 mkdir -p /home/developer/Documents/git
+WORKDIR /home/developer/Documents/git
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
