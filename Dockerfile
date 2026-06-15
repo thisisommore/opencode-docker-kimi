@@ -4,27 +4,14 @@ FROM ubuntu:24.04
 # Suppress frontend warnings during standard package installations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install initial foundation dependencies for repository mapping
+# Update dependencies and assemble the complete Toolbelt + Network Suite + Core Runtimes
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # --- System Core & Fetch Utilities ---
     curl \
     wget \
     ca-certificates \
-    gnupg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Add official GitHub CLI upstream repository source
-RUN mkdir -p -m 0755 /etc/apt/keyrings \
-    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-
-# Update dependencies and assemble the complete Toolbelt + Network Suite + Core Runtimes
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    # --- Forge Version Control & Secure Shell Tooling ---
     git \
-    gh \
     openssh-client \
-    # --- System Core & Build Tools ---
     build-essential \
     make \
     ripgrep \
@@ -45,10 +32,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     net-tools \
     nmap \
     && rm -rf /var/lib/apt/lists/*
-
-# Install official GitLab CLI (glab) from the modern gitlab-org repository archive
-RUN curl -fsSL "https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_linux_amd64.tar.gz" \
-    | tar -xzC /usr/local/bin bin/glab --strip-components=1
 
 # Map canonical binary alias targets (Fixes Ubuntu's naming quirk for fd-find)
 RUN ln -s /usr/bin/fdfind /usr/local/bin/fd
