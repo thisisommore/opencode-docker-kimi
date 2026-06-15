@@ -20,9 +20,10 @@ RUN mkdir -p -m 0755 /etc/apt/keyrings \
 
 # Update dependencies and assemble the complete Toolbelt + Network Suite + Core Runtimes
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # --- Forge Version Control Tooling ---
+    # --- Forge Version Control & Secure Shell Tooling ---
     git \
     gh \
+    openssh-client \
     # --- System Core & Build Tools ---
     build-essential \
     make \
