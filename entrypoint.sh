@@ -69,4 +69,36 @@ fi
 
 # Hand over process control to the headless OpenCode server engine
 echo "[INFO] Exposing OpenCode routing gateway on 0.0.0.0:4096..."
+
+# --- Supermemory Plugin First-Time Setup ---
+OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+OPENCODE_CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.jsonc"
+SUPERMEMORY_CONFIG_FILE="$OPENCODE_CONFIG_DIR/supermemory.jsonc"
+mkdir -p "$OPENCODE_CONFIG_DIR"
+
+if [ -n "$SUPERMEMORY_API_KEY" ] && [ ! -f "$SUPERMEMORY_CONFIG_FILE" ]; then
+    echo "[INFO] Writing Supermemory configuration..."
+    cat > "$SUPERMEMORY_CONFIG_FILE" <<EOF
+{
+  "apiKey": "${SUPERMEMORY_API_KEY}",
+  "similarityThreshold": 0.6,
+  "maxMemories": 5,
+  "maxProjectMemories": 10,
+  "maxProfileItems": 5,
+  "injectProfile": true,
+  "containerTagPrefix": "opencode",
+  "compactionThreshold": 0.80
+}
+EOF
+fi
+
+if [ -n "$SUPERMEMORY_API_URL" ] || [ -n "$SUPERMEMORY_API_KEY" ]; then
+    if [ -f "$OPENCODE_CONFIG_FILE" ] && grep -q '"opencode-supermemory"' "$OPENCODE_CONFIG_FILE" 2>/dev/null; then
+        echo "[INFO] Supermemory plugin already installed; skipping first-time setup."
+    else
+        echo "[INFO] Installing Supermemory plugin for OpenCode (first run)..."
+        bunx opencode-supermemory@latest install --no-tui
+    fi
+fi
+
 exec opencode serve --hostname 0.0.0.0 --port 4096
