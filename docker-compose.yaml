@@ -61,3 +61,4 @@ volumes:
   opencode_data:
   opencode_config:
   supermemory_data:
+  opencode_plugins:
