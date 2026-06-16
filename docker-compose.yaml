@@ -16,6 +16,7 @@ services:
       - DOKPLOY_API_KEY=${DOKPLOY_API_KEY:-}
       # Supermemory integration
       - SUPERMEMORY_API_URL=${SUPERMEMORY_API_URL:-http://supermemory:6767}
+      - SUPERMEMORY_API_KEY=${SUPERMEMORY_API_KEY:?required}
     volumes:
       - projects_dir:/home/developer/Documents
       - ssh:/home/developer/.ssh
