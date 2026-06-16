@@ -34,10 +34,6 @@ else
     echo "[WARNING] GIT_USER_NAME or GIT_USER_EMAIL is unset. Git commits may complain about identity." >&2
 fi
 
-# --- Runtime SSH Infrastructure Setup ---
-mkdir -p "$HOME/.ssh"
-chmod 700 "$HOME/.ssh"
-
 # Generate Ed25519 key pair only if it doesn't exist (Idempotent for volume restarts)
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     echo "[INFO] No existing deployment key detected. Provisioning fresh Ed25519 pair..."
