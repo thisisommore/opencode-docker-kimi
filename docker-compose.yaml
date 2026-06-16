@@ -40,7 +40,7 @@ services:
       - PORT=6767
       - SUPERMEMORY_DATA_DIR=/data
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.kimi.com/coding/v1}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:?required}
+      - OPENAI_API_KEY=${KIMIAI_API_KEY:?required}
       - OPENAI_MODEL=${OPENAI_MODEL:-kimi-k2.7-code}
       - OPENAI_FAST_MODEL=${OPENAI_FAST_MODEL:-${OPENAI_MODEL:-kimi-k2.7-code}}
       - OPENAI_TEXT_MODEL=${OPENAI_TEXT_MODEL:-${OPENAI_MODEL:-kimi-k2.7-code}}
