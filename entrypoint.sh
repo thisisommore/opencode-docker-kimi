@@ -86,13 +86,4 @@ if [ -n "$SUPERMEMORY_API_URL" ] || [ -n "$SUPERMEMORY_API_KEY" ]; then
     fi
 fi
 
-if [ -n "$SUPERMEMORY_API_URL" ] || [ -n "$SUPERMEMORY_API_KEY" ]; then
-    if [ -f "$OPENCODE_CONFIG_FILE" ] && grep -q '"opencode-supermemory"' "$OPENCODE_CONFIG_FILE" 2>/dev/null; then
-        echo "[INFO] Supermemory plugin already installed; skipping first-time setup."
-    else
-        echo "[INFO] Installing Supermemory plugin for OpenCode (first run)..."
-        bunx opencode-supermemory@latest install --no-tui
-    fi
-fi
-
 exec opencode serve --hostname 0.0.0.0 --port 4096
