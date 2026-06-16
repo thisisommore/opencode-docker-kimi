@@ -11,6 +11,8 @@ services:
       - OPENCODE_AUTH_B64=${OPENCODE_AUTH_B64:?required}
       - GIT_USER_NAME=${GIT_USER_NAME:-}
       - GIT_USER_EMAIL=${GIT_USER_EMAIL:-}
+      - DOKPLOY_URL=${DOKPLOY_URL:-}
+      - DOKPLOY_API_KEY=${DOKPLOY_API_KEY:-}
     volumes:
       - projects_dir:/home/developer/Documents
       - ssh:/home/developer/.ssh
