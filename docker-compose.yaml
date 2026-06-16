@@ -16,12 +16,6 @@ services:
       - DOKPLOY_API_KEY=${DOKPLOY_API_KEY:-}
       # Supermemory integration
       - SUPERMEMORY_API_URL=${SUPERMEMORY_API_URL:-http://supermemory:6767}
-      # Kimi K2.7 Coding via OpenAI-compatible endpoint
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.kimi.com/coding/v1}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:?required}
-      - OPENAI_MODEL=${OPENAI_MODEL:-kimi-k2.7-code}
-      - OPENAI_FAST_MODEL=${OPENAI_FAST_MODEL:-${OPENAI_MODEL:-kimi-k2.7-code}}
-      - OPENAI_TEXT_MODEL=${OPENAI_TEXT_MODEL:-${OPENAI_MODEL:-kimi-k2.7-code}}
     volumes:
       - projects_dir:/home/developer/Documents
       - ssh:/home/developer/.ssh
