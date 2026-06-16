@@ -51,9 +51,9 @@ services:
     working_dir: /data
     command: >
       sh -c "apt-get update && apt-get install -y --no-install-recommends curl ca-certificates &&
-             curl -fsSL https://supermemory.ai/install | bash &&
-             export PATH=\"$$HOME/.supermemory:$$PATH\" &&
-             exec supermemory-server"
+         curl -fsSL https://supermemory.ai/install | bash &&
+         export PATH=\"/root/.local/bin:$PATH\" &&
+         exec supermemory-server"
 
 volumes:
   projects_dir:
