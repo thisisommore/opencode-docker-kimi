@@ -1,0 +1,29 @@
+services:
+  opencode:
+    build: .
+    container_name: opencode
+    hostname: opencode
+    restart: unless-stopped
+    ports:
+      - "4096:4096"
+    environment:
+      - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:?required}
+      - OPENCODE_AUTH_B64=${OPENCODE_AUTH_B64:?required}
+      - GIT_USER_NAME=${GIT_USER_NAME:-}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL:-}
+    volumes:
+      - projects_dir:/home/developer/Documents
+      - ssh:/home/developer/.ssh
+      - opencode_data:/home/developer/.local/share/opencode
+      - opencode_config:/home/developer/.config/opencode
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4096"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  projects_dir:
+  ssh:
+  opencode_data:
+  opencode_config:
