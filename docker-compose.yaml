@@ -52,11 +52,6 @@ services:
              curl -fsSL https://supermemory.ai/install | bash &&
              export PATH=\"$$HOME/.supermemory:$$PATH\" &&
              exec supermemory-server"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "6767"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
 volumes:
   projects_dir:
