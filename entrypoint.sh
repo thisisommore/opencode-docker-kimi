@@ -34,6 +34,11 @@ else
     echo "[WARNING] GIT_USER_NAME or GIT_USER_EMAIL is unset. Git commits may complain about identity." >&2
 fi
 
+if [ ! -w "/home/developer/.ssh" ]; then
+    sudo chown -R developer:developer /home/developer/.ssh
+    sudo chmod 700 /home/developer/.ssh
+fi
+
 # Generate Ed25519 key pair only if it doesn't exist (Idempotent for volume restarts)
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     echo "[INFO] No existing deployment key detected. Provisioning fresh Ed25519 pair..."
