@@ -94,6 +94,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Expose standard headless routing network definitions
 EXPOSE 4096
 
+RUN npm install -g @dokploy/cli
 RUN mkdir -p /home/developer/Documents/git
 WORKDIR /home/developer/Documents/git
 
