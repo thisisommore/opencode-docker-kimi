@@ -76,20 +76,14 @@ OPENCODE_CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.jsonc"
 SUPERMEMORY_CONFIG_FILE="$OPENCODE_CONFIG_DIR/supermemory.jsonc"
 mkdir -p "$OPENCODE_CONFIG_DIR"
 
-if [ -n "$SUPERMEMORY_API_KEY" ] && [ ! -f "$SUPERMEMORY_CONFIG_FILE" ]; then
-    echo "[INFO] Writing Supermemory configuration..."
-    cat > "$SUPERMEMORY_CONFIG_FILE" <<EOF
-{
-  "apiKey": "${SUPERMEMORY_API_KEY}",
-  "similarityThreshold": 0.6,
-  "maxMemories": 5,
-  "maxProjectMemories": 10,
-  "maxProfileItems": 5,
-  "injectProfile": true,
-  "containerTagPrefix": "opencode",
-  "compactionThreshold": 0.80
-}
-EOF
+if [ -n "$SUPERMEMORY_API_URL" ] || [ -n "$SUPERMEMORY_API_KEY" ]; then
+    if [ -f "$OPENCODE_CONFIG_DIR/.supermemory-installed" ]; then
+        echo "[INFO] Supermemory plugin already installed; skipping first-time setup."
+    else
+        echo "[INFO] Installing Supermemory plugin for OpenCode (first run)..."
+        bunx opencode-supermemory@latest install --no-tui
+        touch "$OPENCODE_CONFIG_DIR/.supermemory-installed"
+    fi
 fi
 
 if [ -n "$SUPERMEMORY_API_URL" ] || [ -n "$SUPERMEMORY_API_KEY" ]; then
