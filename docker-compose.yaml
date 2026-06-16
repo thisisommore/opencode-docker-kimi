@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - "4096:4096"
+      - "5173:5173"
     environment:
       - OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:?required}
       - OPENCODE_AUTH_B64=${OPENCODE_AUTH_B64:?required}
