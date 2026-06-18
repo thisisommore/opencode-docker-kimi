@@ -95,6 +95,16 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 4096
 
 RUN npm install -g @dokploy/cli
+
+# Install GitLab CLI (glab)
+RUN GLAB_VERSION=$(curl -sL https://api.github.com/repos/gitlab-org/cli/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
+    && curl -L --fail --retry 5 --retry-delay 1 \
+       "https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VERSION}/downloads/glab_${GLAB_VERSION}_linux_amd64.tar.gz" \
+       -o /tmp/glab.tar.gz \
+    && tar -xzf /tmp/glab.tar.gz -C /tmp \
+    && mv /tmp/bin/glab /usr/local/bin/glab \
+    && chmod +x /usr/local/bin/glab \
+    && rm -rf /tmp/glab.tar.gz /tmp/bin
 RUN mkdir -p /home/developer/Documents/git
 WORKDIR /home/developer/Documents/git
 
