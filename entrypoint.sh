@@ -34,6 +34,16 @@ else
     echo "[WARNING] GIT_USER_NAME or GIT_USER_EMAIL is unset. Git commits may complain about identity." >&2
 fi
 
+# --- GitLab CLI Authentication Setup ---
+if [ -n "$GITLAB_TOKEN" ]; then
+    echo "[INFO] Configuring GitLab CLI (glab) authentication..."
+    glab config set token "$GITLAB_TOKEN" --global >/dev/null 2>&1 || true
+    glab config set host "https://gitlab.com" --global >/dev/null 2>&1 || true
+    glab auth status 2>/dev/null || echo "[INFO] glab token configured"
+else
+    echo "[WARNING] GITLAB_TOKEN is unset. GitLab CLI commands will require manual auth." >&2
+fi
+
 if [ ! -w "/home/developer/.ssh" ]; then
     sudo chown -R developer:developer /home/developer/.ssh
     sudo chmod 700 /home/developer/.ssh
