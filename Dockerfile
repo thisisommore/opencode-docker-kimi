@@ -57,6 +57,15 @@ RUN useradd -m -u 1001 -s /bin/bash developer && \
     mkdir -p /workspace /home/developer/.local/share/opencode /home/developer/.local/bin && \
     chown -R developer:developer /workspace /home/developer
 
+# Install Homebrew to /home/linuxbrew/.linuxbrew for shared, bottle-compatible installs
+ENV HOMEBREW_NO_INSTALL_CLEANUP=true
+ENV HOMEBREW_NO_AUTO_UPDATE=1
+ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
+RUN mkdir -p ${HOMEBREW_PREFIX} && \
+    curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components=1 -C ${HOMEBREW_PREFIX} && \
+    chown -R developer:developer ${HOMEBREW_PREFIX}
+ENV PATH="${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:${PATH}"
+
 # Configure user context parameters
 WORKDIR /workspace
 USER developer
@@ -86,6 +95,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 
 # Install Bun Runtime
 RUN curl -fsSL https://bun.sh/install | bash
+# Install GitLab CLI via Homebrew
+RUN brew install glab
 
 # Inject the fixed environment controller entrypoint script
 COPY --chown=developer:developer entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -96,15 +107,7 @@ EXPOSE 4096
 
 RUN npm install -g @dokploy/cli
 
-# Install GitLab CLI (glab)
-RUN GLAB_VERSION=$(curl -sL https://api.github.com/repos/gitlab-org/cli/releases/latest | jq -r '.tag_name' | sed 's/^v//') \
-    && curl -L --fail --retry 5 --retry-delay 1 \
-       "https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VERSION}/downloads/glab_${GLAB_VERSION}_linux_amd64.tar.gz" \
-       -o /tmp/glab.tar.gz \
-    && tar -xzf /tmp/glab.tar.gz -C /tmp \
-    && mv /tmp/bin/glab /usr/local/bin/glab \
-    && chmod +x /usr/local/bin/glab \
-    && rm -rf /tmp/glab.tar.gz /tmp/bin
+
 RUN mkdir -p /home/developer/Documents/git
 WORKDIR /home/developer/Documents/git
 
