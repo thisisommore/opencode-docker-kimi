@@ -49,6 +49,12 @@ if [ ! -w "/home/developer/.ssh" ]; then
     sudo chmod 700 /home/developer/.ssh
 fi
 
+# Ensure opencode config directory is writable for glab and other tools
+if [ ! -w "/home/developer/.config" ]; then
+    sudo chown -R developer:developer /home/developer/.config
+    sudo chmod 755 /home/developer/.config
+fi
+
 # Generate Ed25519 key pair only if it doesn't exist (Idempotent for volume restarts)
 if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
     echo "[INFO] No existing deployment key detected. Provisioning fresh Ed25519 pair..."
