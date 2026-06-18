@@ -17,6 +17,7 @@ services:
       # Supermemory integration
       - SUPERMEMORY_API_URL=${SUPERMEMORY_API_URL:-http://supermemory:6767}
       - SUPERMEMORY_API_KEY=${SUPERMEMORY_API_KEY:?required}
+      - GITLAB_TOKEN=${GITLAB_TOKEN:?required}
     volumes:
       - projects_dir:/home/developer/Documents
       - ssh:/home/developer/.ssh
